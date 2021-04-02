@@ -2,11 +2,13 @@ package com.example.fridgemanager
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -15,7 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.zxing.integration.android.IntentIntegrator
 
 
-class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -49,36 +51,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         binding.lifecycleOwner = this
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_fridge -> {
-                val fridgeFragment = FridgeFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content, fridgeFragment)
-                    .commit()
-                return true
-            }
-
-            R.id.action_recipe -> {
-                val recipeFragment = RecipeFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content, recipeFragment)
-                    .commit()
-                return true
-            }
-
-            R.id.action_board -> {
-                val boardFragment = BoardFragment()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content, boardFragment)
-                    .commit()
-                return true
-            }
-        }
-        return false
-    }
-
-
 //    // Get the results:
 //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 //        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
@@ -95,6 +67,36 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 //            super.onActivityResult(requestCode, resultCode, data)
 //        }
 //    }
+
+    override fun onResume() {
+        super.onResume()
+        // 초기 fragment 세팅
+        supportFragmentManager.beginTransaction().replace(R.id.main_content, FridgeFragment())
+            .commit()
+
+        // Bottom Navigation View 등록
+        transitonNavigationBottomView(binding.navi, supportFragmentManager)
+    }
+
+    // NavigationBottomView 화면 전환하는 함수.
+    private fun transitonNavigationBottomView(bottomView: BottomNavigationView, fragmentManager: FragmentManager){
+        bottomView.setOnNavigationItemSelectedListener {
+            it.isChecked = true
+            when(it.itemId){
+                R.id.action_fridge -> {
+                    fragmentManager.beginTransaction().replace(R.id.main_content, FridgeFragment()).commit()
+                }
+                R.id.action_recipe -> {
+                    fragmentManager.beginTransaction().replace(R.id.main_content, RecipeFragment()).commit()
+                }
+                R.id.action_board -> {
+                    fragmentManager.beginTransaction().replace(R.id.main_content, BoardFragment()).commit()
+                }
+                else -> Log.d("test", "error") == 0
+            }
+            Log.d("test", "final") == 0
+        }
+    }
 
 
 }
